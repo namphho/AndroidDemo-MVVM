@@ -1,6 +1,7 @@
 package com.example.android.guesstheword.screens.game
 
 import android.util.Log
+import androidx.databinding.ObservableField
 import androidx.lifecycle.ViewModel
 
 /**
@@ -63,6 +64,7 @@ class GameViewModel : ViewModel() {
     fun onCorrect() {
         score++
         nextWord()
+        Log.i("TAG", ">>>>>>> ${name.get()}")
     }
 
     /**
@@ -79,4 +81,7 @@ class GameViewModel : ViewModel() {
         super.onCleared()
         Log.i("GameViewModel", "GameViewModel destroyed!")
     }
+
+    var name: ObservableField<String> = ObservableField<String>()
+
 }
