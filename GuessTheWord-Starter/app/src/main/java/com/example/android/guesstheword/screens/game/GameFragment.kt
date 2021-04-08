@@ -23,6 +23,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.NavHostFragment
 import com.example.android.guesstheword.R
@@ -53,22 +54,29 @@ class GameFragment : Fragment() {
         binding.correctButton.setOnClickListener { onCorrect() }
         binding.skipButton.setOnClickListener { onSkip() }
         binding.endGameButton.setOnClickListener { onEndGame() }
-        updateScoreText()
-        updateWordText()
+
+        viewModel.score.observe(viewLifecycleOwner, Observer { value ->
+            binding.scoreText.text = value.toString()
+        })
+
+        viewModel.word.observe(viewLifecycleOwner, Observer { value ->
+            binding.wordText.text = value
+        })
+
+        viewModel.eventGameFinish.observe(viewLifecycleOwner, Observer { isEndGame ->
+            if (isEndGame)  gameFinished()
+        })
+
         return binding.root
 
     }
 
     private fun onSkip() {
         viewModel.onSkip()
-        updateWordText()
-        updateScoreText()
     }
 
     private fun onCorrect() {
         viewModel.onCorrect()
-        updateWordText()
-        updateScoreText()
     }
 
     private fun onEndGame() {
@@ -79,17 +87,8 @@ class GameFragment : Fragment() {
     private fun gameFinished() {
         Toast.makeText(activity, "Game has just finished", Toast.LENGTH_SHORT).show()
         val action = GameFragmentDirections.actionGameToScore()
-        action.score = viewModel.score
+        action.score = viewModel.score.value ?: 0
         NavHostFragment.findNavController(this).navigate(action)
-    }
-
-    /** Methods for updating the UI **/
-
-    private fun updateWordText() {
-        binding.wordText.text = viewModel.word
-    }
-
-    private fun updateScoreText() {
-        binding.scoreText.text = viewModel.score.toString()
+        viewModel.onGameFinishComplete()
     }
 }
